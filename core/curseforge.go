@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/carlmjohnson/requests"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (
@@ -29,7 +30,7 @@ func NewCurseClient(apiKey string) *CurseClient {
 		httpClient: defaultRequestBuilder.
 			Clone().
 			BaseURL(cf_api_host).
-			Header("x-api-key", apiKey),
+			Header("X-API-Key", apiKey),
 	}
 }
 

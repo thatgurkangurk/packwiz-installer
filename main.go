@@ -6,7 +6,9 @@
 
 package main
 
-import "github.com/thatgurkangurk/packwiz-installer/cmd"
+import (
+	"github.com/thatgurkangurk/packwiz-installer/cmd"
+)
 
 func main() {
 	cmd.Execute()
