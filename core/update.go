@@ -15,8 +15,13 @@ import (
 )
 
 func Update() {
-	// Determine correct binary name for current OS/arch
-	binaryName := "packwiz-installer_{{.OS}}_{{.Arch}}"
+	// Map Go arch to asset arch names
+	arch := runtime.GOARCH
+	if arch == "amd64" {
+		arch = "x64"
+	}
+
+	binaryName := "packwiz-installer_" + runtime.GOOS + "_" + arch
 	if runtime.GOOS == "windows" {
 		binaryName += ".exe"
 	}
