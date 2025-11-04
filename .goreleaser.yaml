@@ -32,6 +32,8 @@ builds:
       -X github.com/thatgurkangurk/packwiz-installer/pkg/build.Version={{ .Version }}
       -X github.com/thatgurkangurk/packwiz-installer/pkg/build.Commit={{ .Commit }}
       -X github.com/thatgurkangurk/packwiz-installer/pkg/build.Date={{ .CommitDate }}
+      -X github.com/thatgurkangurk/packwiz-installer/core.cf_api_key={{ .Env.CF_API_KEY }}
+
 
 
 archives:
