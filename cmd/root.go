@@ -10,9 +10,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/thatgurkangurk/packwiz-installer/pkg/build"
 )
-
-var version = "dev"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -21,7 +20,7 @@ var rootCmd = &cobra.Command{
 	Long: `this is a tool that allows you to automatically install/update your modpacks made with packwiz. (for clients and servers!)
 	
 hopefully this can replace packwiz-installer.jar and packwiz-installer-bootstrap.jar, and be faster.`,
-	Version: version,
+	Version: build.Version,
 }
 
 func Execute() {
@@ -33,5 +32,4 @@ func Execute() {
 
 func init() {
 	rootCmd.SetVersionTemplate("{{.Version}}\n")
-	rootCmd.Flags().BoolP("version", "v", false, "Print version and quit")
 }
