@@ -19,12 +19,12 @@ type Side string
 type DLType string
 
 const (
-	Side_Client = Side("client")
-	Side_Server = Side("server")
-	Side_Both   = Side("both")
+	Side_Client Side = "client"
+	Side_Server Side = "server"
+	Side_Both   Side = "both"
 
-	DL_Url        = DLType("url")
-	DL_Curseforge = DLType("curseforge")
+	DL_Url        DLType = "url"
+	DL_Curseforge DLType = "curseforge"
 )
 
 type Download struct {

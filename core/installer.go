@@ -20,6 +20,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Updates tracks changes to be made during installation/update
 type Updates struct {
 	Added     []*Mod
 	Removed   []*Mod
@@ -43,19 +44,16 @@ func (u *Updates) String() string {
 	return s
 }
 
-type Installer interface {
-	Install() error
-	GetUpdates() error
-	InstallMod(m *Mod) (bool, error)
-}
-
+// LocalInstaller manages installation and updates of mods in a local directory
 type LocalInstaller struct {
 	BaseDir    string
 	Pack       *Pack
+	GameSide   Side
 	httpClient *http.Client
 }
 
-func NewLocalInstaller(p *Pack, dir string) (*LocalInstaller, error) {
+// NewLocalInstaller creates a new installer for the given pack in the specified directory
+func NewLocalInstaller(p *Pack, dir string, gameSide Side) (*LocalInstaller, error) {
 	abs, err := filepath.Abs(dir)
 	if err != nil {
 		return nil, err
@@ -63,6 +61,7 @@ func NewLocalInstaller(p *Pack, dir string) (*LocalInstaller, error) {
 	return &LocalInstaller{
 		BaseDir:    abs,
 		Pack:       p,
+		GameSide:   gameSide,
 		httpClient: http.DefaultClient,
 	}, nil
 }
@@ -140,12 +139,22 @@ func (i *LocalInstaller) checkIntegrity(m *Mod) (bool, error) {
 	return valid, nil
 }
 
+// GetUpdates determines which mods need to be added, removed, or are unchanged
 func (i *LocalInstaller) GetUpdates() (*Updates, error) {
 	installed, err := i.getInstalledMods()
 	if err != nil {
 		return nil, err
 	}
-	a, r, u := diffSliceFunc(installed, i.Pack.Mods, func(a, b *Mod) int {
+
+	// Filter mods based on game side
+	filteredMods := make([]*Mod, 0, len(i.Pack.Mods))
+	for _, m := range i.Pack.Mods {
+		if i.GameSide.ShouldInstall(m.Side) {
+			filteredMods = append(filteredMods, m)
+		}
+	}
+
+	a, r, u := diffSliceFunc(installed, filteredMods, func(a, b *Mod) int {
 		res := cmp.Compare(a.Path, b.Path)
 		if res == 0 && a.Hash != b.Hash {
 			res = -1
@@ -159,6 +168,7 @@ func (i *LocalInstaller) GetUpdates() (*Updates, error) {
 	}, nil
 }
 
+// InstallMod installs or updates a single mod
 func (i *LocalInstaller) InstallMod(ctx context.Context, m *Mod) error {
 	var (
 		data []byte
@@ -193,7 +203,7 @@ func (i *LocalInstaller) InstallMod(ctx context.Context, m *Mod) error {
 	return os.WriteFile(p, data, os.ModePerm)
 }
 
-// Install execute install and update modpack
+// Install executes installation and update of the modpack
 func (i *LocalInstaller) Install(ctx context.Context) (*Updates, error) {
 	var result = &Updates{}
 	update, err := i.GetUpdates()
@@ -204,7 +214,9 @@ func (i *LocalInstaller) Install(ctx context.Context) (*Updates, error) {
 	mut := sync.Mutex{}
 	eg, ctx := errgroup.WithContext(ctx)
 	eg.SetLimit(runtime.NumCPU())
+
 	for _, m := range update.Unchanged {
+		m := m // capture for closure
 		eg.Go(func() error {
 			ok, err := i.checkIntegrity(m)
 			if err != nil {
@@ -225,6 +237,7 @@ func (i *LocalInstaller) Install(ctx context.Context) (*Updates, error) {
 	}
 
 	for _, m := range update.Added {
+		m := m // capture for closure
 		eg.Go(func() error {
 			err := i.InstallMod(ctx, m)
 			if err != nil {
@@ -241,6 +254,7 @@ func (i *LocalInstaller) Install(ctx context.Context) (*Updates, error) {
 	}
 
 	for _, m := range update.Removed {
+		m := m // capture for closure
 		eg.Go(func() error {
 			p := filepath.Join(i.BaseDir, m.Path)
 			err := os.Remove(p)

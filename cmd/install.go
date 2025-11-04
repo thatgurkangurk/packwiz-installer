@@ -50,7 +50,14 @@ var installCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		inst, err := core.NewLocalInstaller(pack, cmd.Flag("dir").Value.String())
+
+		// Validate game side flag
+		gameSide := core.Side(cmd.Flag("game-side").Value.String())
+		if !gameSide.IsValid() {
+			return fmt.Errorf("invalid --game-side value, must be 'client', 'server', or 'both'")
+		}
+
+		inst, err := core.NewLocalInstaller(pack, cmd.Flag("dir").Value.String(), gameSide)
 		if err != nil {
 			return err
 		}
@@ -75,6 +82,7 @@ func init() {
 
 	installCmd.Flags().String("hash", "", `Hash of 'pack.toml' in the form of "<format>:<hash>" e.g. "sha256:abc012..."`)
 	installCmd.Flags().StringP("dir", "d", ".", "Directory to install the modpack to")
+	installCmd.Flags().StringP("game-side", "g", "both", "Game side to install mods for: 'client', 'server', or 'both'")
 }
 
 func parseHashFlag(s string) (format string, hash string, ok bool) {
