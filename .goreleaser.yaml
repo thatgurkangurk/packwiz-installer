@@ -27,13 +27,11 @@ builds:
       - arm64
     flags:
       - -trimpath
-    ldflags:
-      - -s -w
-      - >
-        -s -w
-        -X github.com/thatgurkangurk/packwiz-installer/pkg/build.version={{ .Version }}
-        -X github.com/thatgurkangurk/packwiz-installer/pkg/build.commit={{ .Commit }}
-        -X github.com/thatgurkangurk/packwiz-installer/pkg/build.date={{ .CommitDate }}
+    ldflags: >
+      -s -w
+      -X github.com/thatgurkangurk/packwiz-installer/pkg/build.Version={{ .Version }}
+      -X github.com/thatgurkangurk/packwiz-installer/pkg/build.Commit={{ .Commit }}
+      -X github.com/thatgurkangurk/packwiz-installer/pkg/build.Date={{ .CommitDate }}
 
 
 archives:
