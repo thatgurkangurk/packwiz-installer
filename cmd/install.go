@@ -7,29 +7,30 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
-	"github.com/thatgurkangurk/packwiz-installer/core"
 )
 
-// selfUpdateCmd represents the self-update command
-var selfUpdateCmd = &cobra.Command{
-	Use:   "self-update",
-	Short: "updates the cli",
+// installCmd represents the install command
+var installCmd = &cobra.Command{
+	Use:   "install",
+	Short: "installs a packwiz modpack in the current directory",
 	Run: func(cmd *cobra.Command, args []string) {
-		core.Update()
+		fmt.Println("install will come soon")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(selfUpdateCmd)
+	rootCmd.AddCommand(installCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// selfUpdateCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// installCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// selfUpdateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// installCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
